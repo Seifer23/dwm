@@ -3,12 +3,13 @@
 
 /* Constants */
 #define TERMINAL "st"
-#define TERMCLASS "St"
-#define BROWSER "brave"
+#define TERMCLASS "st"
+#define BROWSER "firefox"
 
 /* appearance */
-static unsigned int borderpx  = 3;        /* border pixel of windows */
-static unsigned int snap      = 32;       /* snap pixel */
+static const int CORNER_RADIUS = 10;      /*rounded corner radius*/
+static unsigned int borderpx  = 0;        /* border pixel of windows */
+static unsigned int snap      = 25;       /* snap pixel */
 static unsigned int gappih    = 10;       /* horiz inner gap between windows */
 static unsigned int gappiv    = 10;       /* vert inner gap between windows */
 static unsigned int gappoh    = 10;       /* horiz outer gap between windows and screen edge */
@@ -17,13 +18,13 @@ static int swallowfloating    = 0;        /* 1 means swallow floating windows by
 static int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static int showbar            = 1;        /* 0 means no bar */
 static int topbar             = 1;        /* 0 means bottom bar */
-static char *fonts[]          = { "Caskaydia Cove Nerd Font:size=10", "NotoColorEmoji:pixelsize=10:antialias=true:autohint=true"  };
-static char normbgcolor[]           = "#222222";
-static char normbordercolor[]       = "#444444";
-static char normfgcolor[]           = "#bbbbbb";
-static char selfgcolor[]            = "#eeeeee";
-static char selbordercolor[]        = "#770000";
-static char selbgcolor[]            = "#005577";
+static char *fonts[]          = { "Caskaydia Cove Nerd Font:size=10", "Cascadia Code:size=10", "NotoColorEmoji:pixelsize=10:antialias=true:autohint=true" , "Noto Sans CJK JP:pixelsize=12;antialias=true:autohint=true"};
+static char normbgcolor[]           = "#211b18";
+static char normbordercolor[]       = "#aaa388";
+static char normfgcolor[]           = "#f4eac3";
+static char selfgcolor[]            = "#f4eac3";
+static char selbordercolor[]        = "#f4eac3";
+static char selbgcolor[]            = "#6f936b";
 static char *colors[][3] = {
        //               fg           bg           border
        [SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
@@ -43,7 +44,7 @@ static Sp scratchpads[] = {
 };
 
 /* tagging */
-static const char *tags[] = { "", "", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "", "", "", "", "ε", "ζ", "η", "θ", "" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -51,6 +52,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	*/
 	/* class    instance      title       	 tags mask    isfloating   isterminal  noswallow  monitor */
+	{ "St"	   ,  NULL,	  NULL,		    0, 		  0,           1,         0,        -1 },
 	{ "firefox",  NULL,       NULL,             2,            0,           0,         0,        -1 },
 	{ TERMCLASS,  NULL,       NULL,       	    0,            0,           1,         0,        -1 },
 	{ NULL,       NULL,       "Event Tester",   0,            0,           0,         1,        -1 },
@@ -60,7 +62,7 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static float mfact     = 0.50; /* factor of master area size [0.05..0.95] */
 static int nmaster     = 1;    /* number of clients in master area */
 static int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
@@ -198,6 +200,7 @@ static Key keys[] = {
 	{ MODKEY,			XK_h,		setmfact,	{.f = -0.05} },
 	/* J and K are automatically bound above in STACKEYS */
 	{ MODKEY,			XK_l,		setmfact,      	{.f = +0.05} },
+	{ MODKEY|ShiftMask, 		XK_l,		spawn,		SHCMD("slock") },
 	{ MODKEY,			XK_semicolon,	shiftview,	{ .i = 1 } },
 	{ MODKEY|ShiftMask,		XK_semicolon,	shifttag,	{ .i = 1 } },
 	{ MODKEY,			XK_apostrophe,	togglescratch,	{.ui = 1} },
@@ -217,7 +220,7 @@ static Key keys[] = {
 	/* { MODKEY|ShiftMask,		XK_b,		spawn,		SHCMD("") }, */
 	{ MODKEY,			XK_n,		spawn,		SHCMD(TERMINAL " -e nvim -c VimwikiIndex") },
 	{ MODKEY|ShiftMask,		XK_n,		spawn,		SHCMD(TERMINAL " -e newsboat; pkill -RTMIN+6 dwmblocks") },
-	{ MODKEY,			XK_m,		spawn,		SHCMD(TERMINAL " -e ncmpcpp") },
+	{ MODKEY,			XK_m,		spawn,		SHCMD(TERMINAL " -e ~/.config/ncmpcpp/ncmpcpp-ueberzug/ncmpcpp-ueberzug") },
 	{ MODKEY|ShiftMask,		XK_m,		spawn,		SHCMD("pamixer -t; kill -44 $(pidof dwmblocks)") },
 	{ MODKEY,			XK_comma,	spawn,		SHCMD("mpc prev") },
 	{ MODKEY|ShiftMask,		XK_comma,	spawn,		SHCMD("mpc seek 0%") },
@@ -251,7 +254,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,		XK_space,	togglefloating,	{0} },
 
 	{ 0,				XK_Print,	spawn,		SHCMD("maim ~/Pictures/screenshots/$(date '+%Y-%m-%d-%H%M%S').png") },
-	{ ShiftMask,			XK_Print,	spawn,		SHCMD("maimpick") },
+	{ MODKEY|ShiftMask,		XK_s,		spawn,		SHCMD("maimpick") },
+	{ MODKEY|ShiftMask,		XK_Print, 	spawn, 		SHCMD("maimpick") },
 	{ MODKEY,			XK_Print,	spawn,		SHCMD("dmenurecord") },
 	{ MODKEY|ShiftMask,		XK_Print,	spawn,		SHCMD("dmenurecord kill") },
 	{ MODKEY,			XK_Delete,	spawn,		SHCMD("dmenurecord kill") },
@@ -316,6 +320,7 @@ static Button buttons[] = {
 	{ ClkStatusText,        0,              Button4,        sigdwmblocks,   {.i = 4} },
 	{ ClkStatusText,        0,              Button5,        sigdwmblocks,   {.i = 5} },
 	{ ClkStatusText,        ShiftMask,      Button1,        sigdwmblocks,   {.i = 6} },
+	{ ClkStatusText, 	ControlMask,	Button1,	sigdwmblocks, 	{.i = 7} },
 #endif
 	{ ClkStatusText,        ShiftMask,      Button3,        spawn,          SHCMD(TERMINAL " -e nvim ~/.local/src/dwmblocks/config.h") },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
